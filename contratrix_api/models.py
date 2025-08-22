@@ -33,6 +33,9 @@ class User:
     termos: Mapped[List[str]] = mapped_column(JSONB, nullable=False)
     plano: Mapped[str]
     role: Mapped[str]
+    inicio_plano: Mapped[datetime]
+    fim_plano: Mapped[datetime]
+    assinatura_id: Mapped[str]
     status: Mapped[str]
     created_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()
@@ -41,6 +44,7 @@ class User:
         init=False, server_default=func.now(), onupdate=func.now()
     )
 
+    plano_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('planos.id'))
     reset_tokens = relationship('PasswordResetToken', init=False, back_populates='user', cascade="all, delete-orphan")
     clientes = relationship('Cliente', backref='user', cascade="all, delete-orphan")
 
@@ -167,6 +171,115 @@ class Documentos:
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('users.id'))
     cliente_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('clientes.id'), nullable=True)
     template_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('templates.id'))
+
+
+@table_registry.mapped_as_dataclass
+class Planos:
+    __tablename__ = 'planos'
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False,
+        init=False
+    )
+    nome: Mapped[str]
+    descricao: Mapped[str]
+    preco_cents: Mapped[int]
+    ciclo_faturamento: Mapped[str]
+    pagarme_planoId: Mapped[str]
+    status: Mapped[str]
+    created_at: Mapped[datetime] = mapped_column(
+        init=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        init=False, server_default=func.now(), onupdate=func.now()
+    )
+
+
+@table_registry.mapped_as_dataclass
+class Transacoes:
+    __tablename__ = 'transacoes'
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False,
+        init=False
+    )
+    tipo_transacao: Mapped[str]
+    valor_cents: Mapped[int]
+    pagarme_transacao_id: Mapped[str]
+    pagarme_planoId: Mapped[str]
+    status: Mapped[str]
+    created_at: Mapped[datetime] = mapped_column(
+        init=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        init=False, server_default=func.now(), onupdate=func.now()
+    )
+
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('users.id'))
+    documento_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('documentos.id'), nullable=True)
+
+
+@table_registry.mapped_as_dataclass
+class Cupom:
+    __tablename__ = 'cupons'
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False,
+        init=False
+    )
+    code: Mapped[str]
+    tipo_desconto: Mapped[str]
+    valor_desconto: Mapped[int]
+    aplicavel: Mapped[str]
+    quantidade_total: Mapped[int]
+    limit_uso_usuario: Mapped[int]
+    inicio: Mapped[datetime]
+    termino: Mapped[datetime]
+    observacao: Mapped[str]
+    status: Mapped[str]
+    created_at: Mapped[datetime] = mapped_column(
+        init=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        init=False, server_default=func.now(), onupdate=func.now()
+    )
+
+
+@table_registry.mapped_as_dataclass
+class CupomUsage:
+    __tablename__ = 'cupom_usado'
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False,
+        init=False
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    cupom_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), 
+        ForeignKey("cupons.id", ondelete="CASCADE"), 
+        nullable=False
+    )
+    quantidade_usado: Mapped[int]
+    ultima_vez_usado: Mapped[datetime] = mapped_column(
+        init=False,
+        server_default=func.now()
+    )
 
 
 @table_registry.mapped_as_dataclass

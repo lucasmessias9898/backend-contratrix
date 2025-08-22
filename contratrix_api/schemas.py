@@ -319,3 +319,136 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: str | None = None
+
+
+# Planos
+class PlanoSchema(BaseModel):
+    nome: str
+    descricao: str
+    preco_cents: int
+    ciclo_faturamento: str
+    pagarme_planoId: str
+    status: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class PlanoPublic(BaseModel):
+    id: UUID
+    nome: str
+    descricao: str
+    preco_cents: int
+    ciclo_faturamento: str
+    pagarme_planoId: str
+    status: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class PlanoPaginated(BaseModel):
+    total: int
+    page: int
+    size: int
+    pages: int
+    planos: List[PlanoPublic]
+
+
+class PlanoUpdate(BaseModel):
+    nome: str | None = None
+    descricao: str | None = None
+    preco_cents: int | None = None
+    ciclo_faturamento: str | None = None
+    pagarme_planoId: str | None = None
+    status: str | None = None
+
+
+# Dados Transação
+class TransacaoSchema(BaseModel):
+    tipo_transacao: str
+    valor_cents: int
+    pagarme_transacao_id: str
+    pagarme_planoId: str | None = None
+    status: str
+    user_id: UUID
+    documento_id: UUID | None = None
+
+
+class TransacaoPublic(BaseModel):
+    id: UUID
+    tipo_transacao: str
+    valor_cents: int
+    pagarme_transacao_id: str
+    pagarme_planoId: str | None = None
+    status: str
+    user_id: UUID
+    documento_id: UUID | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class TransacaoPaginated(BaseModel):
+    total: int
+    page: int
+    size: int
+    pages: int
+    transacoes: List[TransacaoPublic]
+
+
+class TransacaoUpdate(BaseModel):
+    tipo_transacao: str | None = None
+    valor_cents: int | None = None
+    pagarme_transacao_id: str | None = None
+    pagarme_planoId: str | None = None
+    status: str | None = None
+    documento_id: UUID | None = None
+
+
+# Dados Cupom
+class CupomSchema(BaseModel):
+    code: str
+    tipo_desconto: str
+    valor_desconto: int
+    aplicavel: str
+    quantidade_total: int
+    limit_uso_usuario: int
+    inicio: datetime
+    termino: datetime
+    observacao: str | None = None
+    status: str
+
+
+class CupomPublic(BaseModel):
+    id: UUID
+    code: str
+    tipo_desconto: str
+    valor_desconto: int
+    aplicavel: str
+    quantidade_total: int
+    limit_uso_usuario: int
+    inicio: datetime
+    termino: datetime
+    observacao: str | None = None
+    status: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class CupomPaginated(BaseModel):
+    total: int
+    page: int
+    size: int
+    pages: int
+    cupons: List[CupomPublic]
+
+
+class CupomUpdate(BaseModel):
+    code: str | None = None
+    tipo_desconto: str | None = None
+    valor_desconto: int | None = None
+    aplicavel: str | None = None
+    quantidade_total: int | None = None
+    limit_uso_usuario: int | None = None
+    inicio: datetime | None = None
+    termino: datetime | None = None
+    observacao: str | None = None
+    status: str | None = None
