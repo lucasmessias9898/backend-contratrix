@@ -51,6 +51,11 @@ class UserSchema(BaseModel):
     email: EmailStr
     password: str
     termos: TermosSchema
+    role: str
+    inicio_plano: datetime | None
+    fim_plano: datetime | None
+    assinatura_id: str | None
+    plano_id: str | None
     status: str | None = 'active'
 
 
@@ -66,8 +71,11 @@ class UserPublic(BaseModel):
     user_photo: str
     primeiro_acesso: bool
     termos: TermosPublic
-    plano: str
     role: str
+    inicio_plano: datetime | None
+    fim_plano: datetime | None
+    assinatura_id: str | None
+    plano_id: str | None
     status: str
     created_at: datetime
     updated_at: datetime
@@ -328,9 +336,7 @@ class PlanoSchema(BaseModel):
     preco_cents: int
     ciclo_faturamento: str
     pagarme_planoId: str
-    status: str
-    created_at: datetime
-    updated_at: datetime
+    status: str | None = 'active'
 
 
 class PlanoPublic(BaseModel):
@@ -414,7 +420,7 @@ class CupomSchema(BaseModel):
     inicio: datetime
     termino: datetime
     observacao: str | None = None
-    status: str
+    status: str | None = 'active'
 
 
 class CupomPublic(BaseModel):

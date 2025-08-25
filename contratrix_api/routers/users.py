@@ -48,8 +48,11 @@ def create_user(user: UserSchema, session: Session):
         user_photo='',
         primeiro_acesso=True,
         termos=termos,
-        plano='free',
-        role='user',
+        role='admin',
+        inicio_plano=user.inicio_plano,
+        fim_plano=user.fim_plano,
+        assinatura_id=user.assinatura_id,
+        plano_id=user.plano_id,
         status='active',
     )
 

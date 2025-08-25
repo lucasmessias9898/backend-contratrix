@@ -31,11 +31,10 @@ class User:
     user_photo: Mapped[str] = mapped_column(nullable=True)
     primeiro_acesso: Mapped[bool]
     termos: Mapped[List[str]] = mapped_column(JSONB, nullable=False)
-    plano: Mapped[str]
     role: Mapped[str]
-    inicio_plano: Mapped[datetime]
-    fim_plano: Mapped[datetime]
-    assinatura_id: Mapped[str]
+    inicio_plano: Mapped[datetime] = mapped_column(nullable=True)
+    fim_plano: Mapped[datetime] = mapped_column(nullable=True)
+    assinatura_id: Mapped[str] = mapped_column(nullable=True)
     status: Mapped[str]
     created_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()
@@ -44,7 +43,7 @@ class User:
         init=False, server_default=func.now(), onupdate=func.now()
     )
 
-    plano_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('planos.id'))
+    plano_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('planos.id'), nullable=True)
     reset_tokens = relationship('PasswordResetToken', init=False, back_populates='user', cascade="all, delete-orphan")
     clientes = relationship('Cliente', backref='user', cascade="all, delete-orphan")
 
