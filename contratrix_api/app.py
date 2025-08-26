@@ -14,6 +14,7 @@ from contratrix_api.routers import (
     contratos,
     planos,
     cupons,
+    transacoes
 )
 from contratrix_api.schemas import Message
 
@@ -41,6 +42,7 @@ app.include_router(templates.router)
 app.include_router(contratos.router)
 app.include_router(planos.router)
 app.include_router(cupons.router)
+app.include_router(transacoes.router)
 
 
 @app.get('/', status_code=HTTPStatus.OK, response_model=Message)

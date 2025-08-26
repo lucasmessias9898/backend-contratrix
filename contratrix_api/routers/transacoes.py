@@ -16,34 +16,7 @@ router = APIRouter()
 Session = Annotated[Session, Depends(get_session)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
-router = APIRouter(prefix='/cupons', tags=['Cupons'])
-
-
-@router.post('/', status_code=HTTPStatus.CREATED, response_model=TransacaoPublic)
-def create_transacao(
-    transacao: TransacaoSchema,
-    session: Session,
-    user: CurrentUser
-):
-
-    db_transacao = Transacoes(
-        code=plano.code,
-        tipo_desconto=plano.tipo_desconto,
-        valor_desconto=plano.valor_desconto,
-        aplicavel=plano.aplicavel,
-        quantidade_total=plano.quantidade_total,
-        limit_uso_usuario=plano.limit_uso_usuario,
-        inicio=plano.inicio,
-        termino=plano.termino,
-        observacao=plano.observacao,
-        status='active',
-    )
-
-    session.add(db_transacao)
-    session.commit()
-    session.refresh(db_transacao)
-
-    return db_transacao
+router = APIRouter(prefix='/transacoes', tags=['Transacoes'])
 
 
 @router.get('/', status_code=HTTPStatus.OK, response_model=TransacaoPaginated)
