@@ -213,7 +213,6 @@ class Transacoes:
     tipo_transacao: Mapped[str]
     valor_cents: Mapped[int]
     pagarme_transacao_id: Mapped[str]
-    pagarme_planoId: Mapped[str]
     status: Mapped[str]
     created_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()
@@ -223,6 +222,8 @@ class Transacoes:
     )
 
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('users.id'))
+    plano_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('planos.id'))
+    cupom_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("cupons.id"), nullable=True)
     documento_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('documentos.id'), nullable=True)
 
 

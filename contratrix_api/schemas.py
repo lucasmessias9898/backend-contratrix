@@ -371,12 +371,13 @@ class PlanoUpdate(BaseModel):
 # Dados Transação
 class TransacaoSchema(BaseModel):
     tipo_transacao: str
-    valor_cents: int
-    pagarme_transacao_id: str
-    pagarme_planoId: str | None = None
-    status: str
     user_id: UUID
     documento_id: UUID | None = None
+    tipo_transacao: str
+    valor_cents: int
+    status: str
+    pagarme_transacao_id: str
+    plano_id: str | None = None
 
 
 class TransacaoPublic(BaseModel):
@@ -384,7 +385,7 @@ class TransacaoPublic(BaseModel):
     tipo_transacao: str
     valor_cents: int
     pagarme_transacao_id: str
-    pagarme_planoId: str | None = None
+    plano_id: str | None = None
     status: str
     user_id: UUID
     documento_id: UUID | None = None
@@ -404,7 +405,7 @@ class TransacaoUpdate(BaseModel):
     tipo_transacao: str | None = None
     valor_cents: int | None = None
     pagarme_transacao_id: str | None = None
-    pagarme_planoId: str | None = None
+    plano_id: str | None = None
     status: str | None = None
     documento_id: UUID | None = None
 
