@@ -459,3 +459,10 @@ class CupomUpdate(BaseModel):
     termino: datetime | None = None
     observacao: str | None = None
     status: str | None = None
+
+
+# Dados Checkout Avulso
+class CheckoutSchema(BaseModel):
+    userId: UUID
+    planoId: UUID
+    cupom_code: str
