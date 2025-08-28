@@ -51,11 +51,6 @@ class UserSchema(BaseModel):
     email: EmailStr
     password: str
     termos: TermosSchema
-    role: str
-    inicio_plano: datetime | None
-    fim_plano: datetime | None
-    assinatura_id: str | None
-    plano_id: str | None
     status: str | None = 'active'
 
 
@@ -125,7 +120,7 @@ class UserDB(UserSchema):
 
 #Dados Prestador
 class PrestadorSchema(BaseModel):
-    tipo_prestador: str
+    tipo_prestador: str 
     nome_prestador: str | None
     sobrenome_prestador: str | None
     cpf_prestador: str | None
@@ -141,19 +136,19 @@ class PrestadorSchema(BaseModel):
 
 class PrestadorPublic(BaseModel):
     id: UUID
-    tipo_prestador: str
-    nome_prestador: str
-    sobrenome_prestador: str
-    cpf_prestador: str
-    email_prestador: str
-    telefone_prestador: str
-    razao_social_prestador: str
-    nome_fantasia_prestador: str
-    cnpj_prestador: str
-    endereco_prestador: EnderecoSchema
-    status_prestador: str
-    logo_prestador: str
-    user_id: UUID
+    tipo_prestador: str | None
+    nome_prestador: str | None
+    sobrenome_prestador: str | None
+    cpf_prestador: str | None
+    email_prestador: str | None
+    telefone_prestador: str | None
+    razao_social_prestador: str | None
+    nome_fantasia_prestador: str | None
+    cnpj_prestador: str | None
+    endereco_prestador: EnderecoSchema | None
+    status_prestador: str | None
+    logo_prestador: str | None
+    user_id: UUID 
     created_at_prestador: datetime
     updated_at_prestador: datetime
 

@@ -61,12 +61,12 @@ class Prestador:
         nullable=False,
         init=False
     )
-    tipo_prestador: Mapped[str]
+    tipo_prestador: Mapped[str] = mapped_column(nullable=True)
     nome_prestador: Mapped[str] = mapped_column(nullable=True)
     sobrenome_prestador: Mapped[str] = mapped_column(nullable=True)
     cpf_prestador: Mapped[str] = mapped_column(nullable=True)
-    telefone_prestador: Mapped[str]
-    email_prestador: Mapped[str]
+    telefone_prestador: Mapped[str] = mapped_column(nullable=True)
+    email_prestador: Mapped[str] = mapped_column(nullable=True)
     razao_social_prestador: Mapped[str] = mapped_column(nullable=True)
     nome_fantasia_prestador: Mapped[str] = mapped_column(nullable=True)
     cnpj_prestador: Mapped[str] = mapped_column(nullable=True)

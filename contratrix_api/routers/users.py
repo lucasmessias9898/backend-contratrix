@@ -9,8 +9,8 @@ from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
 from contratrix_api.database import get_session
-from contratrix_api.models import User, PasswordResetToken
-from contratrix_api.schemas import Message, UserList, UserPublic, UserSchema, UserUpdate, UserUpdateAdmin, UserPaginated, UserRecoverPassword, UserUpdatePassword
+from contratrix_api.models import User, Prestador, PasswordResetToken
+from contratrix_api.schemas import Message, UserPublic, UserSchema, UserUpdate, UserUpdateAdmin, UserPaginated, UserRecoverPassword, UserUpdatePassword
 from contratrix_api.security import (
     get_current_user,
     get_password_hash,
@@ -48,17 +48,37 @@ def create_user(user: UserSchema, session: Session):
         user_photo='',
         primeiro_acesso=True,
         termos=termos,
-        role='admin',
-        inicio_plano=user.inicio_plano,
-        fim_plano=user.fim_plano,
-        assinatura_id=user.assinatura_id,
-        plano_id=user.plano_id,
+        role='user',
+        inicio_plano=None,
+        fim_plano=None,
+        assinatura_id=None,
+        plano_id=None,
         status='active',
     )
 
     session.add(db_user)
     session.commit()
     session.refresh(db_user)
+
+    db_prestador = Prestador(
+        tipo_prestador=None,
+        nome_prestador=None, 
+        sobrenome_prestador=None, 
+        cpf_prestador=None, 
+        email_prestador=None, 
+        telefone_prestador=None, 
+        razao_social_prestador=None, 
+        nome_fantasia_prestador=None, 
+        cnpj_prestador=None, 
+        endereco_prestador=None,
+        logo_prestador=None, 
+        status_prestador='active',
+        user_id=db_user.id
+    )
+
+    session.add(db_prestador)
+    session.commit()
+    session.refresh(db_prestador)
 
     #send_email(user.name, user.email, 13, { 'name': user.name })
 
