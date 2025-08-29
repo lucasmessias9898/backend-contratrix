@@ -132,7 +132,8 @@ class Template:
     nome: Mapped[str]
     tipo: Mapped[str]
     campos: Mapped[List[str]] = mapped_column(JSONB, nullable=False)
-    template: Mapped[str]
+    template_url: Mapped[str] = mapped_column(nullable=True)
+    template_html: Mapped[str] = mapped_column(nullable=True)
     status: Mapped[str] = mapped_column()
     created_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()

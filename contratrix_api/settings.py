@@ -21,4 +21,5 @@ class Settings(BaseSettings):
     BUCKET_NAME_TEMPLATES: str
     BUCKET_NAME_LOGOS: str
     BUCKET_NAME_AVATAR: str
+    BUCKET_NAME_DOCUMENTOS: str
 

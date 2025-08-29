@@ -32,7 +32,8 @@ def create_template(
         nome=template.nome, 
         tipo=template.tipo, 
         campos=campos_dict, 
-        template=template.template, 
+        template_url=template.template_url, 
+        template_html=template.template_html, 
         status=template.status
     )
 

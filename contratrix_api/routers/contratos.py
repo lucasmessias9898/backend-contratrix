@@ -4,11 +4,13 @@ from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session
+import boto3, io, pypandoc, re, requests
 
 from contratrix_api.database import get_session
 from contratrix_api.models import Documentos, Template, Cliente, Prestador, User
 from contratrix_api.schemas import Message, DocumentoSchema, DocumentoPublic, DocumentoPaginated, MessageUpload
 from contratrix_api.security import get_current_user 
+from contratrix_api.settings import Settings
 
 router = APIRouter()
 
@@ -104,33 +106,63 @@ def criar_documento_express(
     user: CurrentUser
 ):  
     
-    # Buscar o template
+    # Buscar o template no banco
     template = session.query(Template).filter(Template.id == documento.template_id).first()
     if not template:
         raise HTTPException(status_code=404, detail="Template não encontrado")
-    
-    campos = template.campos  # lista de campos
-    texto = template.template  # texto base com placeholders
 
-    # 2. Fazer de/para
-    data_dict = {}
+    campos = template.campos
+    html_template = template.template_html  # aqui já é HTML salvo no banco
+
+    # Substituir placeholders {{campo}}
     for campo in campos:
-        chave = campo["name"]  # pega a string
-        valor = documento.dados_contrato.get(chave, "")
-        data_dict[chave] = valor
+        valor = documento.dados_contrato.get(campo["name"], "")
+        html_template = re.sub(rf"{{{{\s*{campo['name']}\s*}}}}", str(valor), html_template)
 
-    # 3. Substituir placeholders no texto
-    for campo, valor in data_dict.items():
-        placeholder = f"{{{{{campo}}}}}"  # exemplo: {{nome_cliente}}
-        texto = texto.replace(placeholder, valor)
-    
-    # Persistência
+    # Gerar nome do PDF
+    new_file_name = f"{uuid4()}-{documento.nome_documento.replace(' ', '-')}.pdf"
+
+    # Converter HTML → PDF (usando pypandoc + wkhtmltopdf)
+    pdf_file = f"/tmp/{new_file_name}"
+    pypandoc.convert_text(
+        html_template,
+        to="pdf",
+        format="html",
+        outputfile=pdf_file,
+        extra_args=["--pdf-engine=weasyprint", "--metadata", 'title="Contrato"']
+    )
+
+    # Ler PDF em memória
+    with open(pdf_file, "rb") as f:
+        pdf_buffer = io.BytesIO(f.read())
+        pdf_buffer.seek(0)
+
+    # Upload no Cloudflare R2
+    s3_client = boto3.client(
+        "s3",
+        region_name='auto',
+        endpoint_url=f"https://{Settings().CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com",
+        aws_access_key_id=Settings().CLOUDFLARE_ACCESS_KEY_ID,
+        aws_secret_access_key=Settings().CLOUDFLARE_SECRET_ACCESS_KEY,
+    )
+
+    s3_client.upload_fileobj(
+        pdf_buffer,
+        Settings().BUCKET_NAME_DOCUMENTOS,
+        new_file_name,
+        ExtraArgs={'ContentType': 'application/pdf'}
+    )
+
+    # Montar URL pública (ajuste conforme seu setup de R2 Public Bucket)
+    pdf_url = f"https://pub-{Settings().CLOUDFLARE_BUCKET_ID}.r2.dev/{new_file_name}"
+
+    # Persistência no banco
     db_documento = Documentos(
         nome_documento=documento.nome_documento,
         tipo=documento.tipo,
         modo=documento.modo,
-        documento_text=texto,
-        pdf_url='',
+        documento_text=html_template,
+        pdf_url=pdf_url,
         status='draft',
         user_id=user.id,
         cliente_id=None,

@@ -27,62 +27,68 @@ CurrentUser = Annotated[User, Depends(get_current_user)]
 
 @router.post('/', status_code=HTTPStatus.CREATED, response_model=UserPublic)
 def create_user(user: UserSchema, session: Session):
+    try:
+        db_user = session.scalar(select(User).where(User.email == user.email))
 
-    db_user = session.scalar(select(User).where(User.email == user.email))
+        if db_user:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail='E-mail em uso. Tente recuperar a senha ou usar outro e-mail',
+            )
 
-    if db_user:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail='E-mail em uso. Tente recuperar a senha ou usar outro e-mail',
+        hashed_password = get_password_hash(user.password)
+
+        termos = {'aceito': user.termos.aceito, 'data_aceite': user.termos.data_aceite.isoformat()}
+
+        db_user = User(
+            nome=user.nome,
+            sobrenome=user.sobrenome,
+            email=user.email,
+            password=hashed_password,
+            user_photo='',
+            primeiro_acesso=True,
+            termos=termos,
+            role='user',
+            inicio_plano=None,
+            fim_plano=None,
+            assinatura_id=None,
+            plano_id=None,
+            status='active',
         )
 
-    hashed_password = get_password_hash(user.password)
+        session.add(db_user)
+        session.flush()
 
-    termos = {'aceito': user.termos.aceito, 'data_aceite': user.termos.data_aceite.isoformat()}
+        db_prestador = Prestador(
+            tipo_prestador=None,
+            nome_prestador=None, 
+            sobrenome_prestador=None, 
+            cpf_prestador=None, 
+            email_prestador=None, 
+            telefone_prestador=None, 
+            razao_social_prestador=None, 
+            nome_fantasia_prestador=None, 
+            cnpj_prestador=None, 
+            endereco_prestador=None,
+            logo_prestador=None, 
+            status_prestador='active',
+            user_id=db_user.id
+        )
 
-    db_user = User(
-        nome=user.nome,
-        sobrenome=user.sobrenome,
-        email=user.email,
-        password=hashed_password,
-        user_photo='',
-        primeiro_acesso=True,
-        termos=termos,
-        role='user',
-        inicio_plano=None,
-        fim_plano=None,
-        assinatura_id=None,
-        plano_id=None,
-        status='active',
-    )
+        session.add(db_prestador)
+        session.commit()
+        session.refresh(db_prestador)
 
-    session.add(db_user)
-    session.commit()
-    session.refresh(db_user)
+        #send_email(user.name, user.email, 13, { 'name': user.name })
 
-    db_prestador = Prestador(
-        tipo_prestador=None,
-        nome_prestador=None, 
-        sobrenome_prestador=None, 
-        cpf_prestador=None, 
-        email_prestador=None, 
-        telefone_prestador=None, 
-        razao_social_prestador=None, 
-        nome_fantasia_prestador=None, 
-        cnpj_prestador=None, 
-        endereco_prestador=None,
-        logo_prestador=None, 
-        status_prestador='active',
-        user_id=db_user.id
-    )
-
-    session.add(db_prestador)
-    session.commit()
-    session.refresh(db_prestador)
-
-    #send_email(user.name, user.email, 13, { 'name': user.name })
-
-    return db_user
+        return db_user
+    
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail=f"Ocorreu um erro ao criar a sua conta.",
+        )
 
 
 @router.get('/me', status_code=HTTPStatus.OK, response_model=UserPublic)

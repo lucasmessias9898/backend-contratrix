@@ -240,7 +240,8 @@ class TemplateSchema(BaseModel):
     nome: str
     tipo: str 
     campos: List[CampoTemplate]
-    template: str
+    template_url: str
+    template_html: str
     status: str
 
 
@@ -249,7 +250,8 @@ class TemplatePublic(BaseModel):
     nome: str
     tipo: str 
     campos: List[CampoTemplate]
-    template: str
+    template_url: str
+    template_html: str
     status: str
     created_at: datetime
     updated_at: datetime
